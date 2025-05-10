@@ -1,12 +1,9 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.remote.webelement import WebElement
-from selenium.common.exceptions import NoSuchElementException
-from pathlib import Path
 import sys
+import datetime
 
 def crear_driver():
     #establecer opciones
@@ -25,27 +22,28 @@ def ajustar_ancho_y_alto(navegador):
     anchura = navegador.execute_script('return document.documentElement.scrollWidth')
     navegador.set_window_size(anchura, altura)
     return navegador
+def determinar_nombre_archivo():
+    directorio = sys.argv[2]
+    timestamp = str(datetime.datetime.now())
+    nombre_archivo = f"{directorio}/captura-{timestamp}.png"
+    return nombre_archivo
 
-def tomar_captura(navegador):
-    navegador.save_screenshot("captura.png")
+def tomar_captura(navegador, nombre_archivo):
+    navegador.save_screenshot(nombre_archivo)
 
 def recibir_sitio():
     """Funcion que extrae un sitio web de un archivo txt"""
     with open(sys.argv[1], 'r') as archivo:
         lineas = archivo.readlines()
         return lineas[0]
-def recibir_titulo():
-    """Funcion que aserta el titulo en la pagina a abrir"""
-    with open(sys.argv[1], 'r') as archivo:
-        lineas = archivo.readlines()
-        return lineas[1]
 
 def main():
     navegador = crear_driver()
     pagina = recibir_sitio()
     abrir_pagina(navegador = navegador, pagina = pagina)
     navegador = ajustar_ancho_y_alto(navegador)
-    tomar_captura(navegador = navegador)
+    nombre_archivo = determinar_nombre_archivo()
+    tomar_captura(navegador = navegador, nombre_archivo = nombre_archivo)
     navegador.close()
 
 if __name__ == "__main__":
